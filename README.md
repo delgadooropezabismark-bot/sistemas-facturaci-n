@@ -11,7 +11,7 @@ Los diseños, diagramas de navegación y prototipos del sistema se encuentran en
 - 📊 [Reporte de Ingresos](docs/design/Reporte.png)
 
 
----
+
 
 ## Diseño Detallado — Diagramas UML (PlantUML)
 
