@@ -1,0 +1,18 @@
+@startuml
+actor Recepcionista as R
+participant "Interfaz" as UI
+participant "Controlador" as CTRL
+database "Base de Datos" as DB
+
+R -> UI: Ingresa datos del huésped
+UI -> CTRL: Envía datos para validar
+alt Datos incompletos
+    CTRL --> UI: Devuelve mensaje de error
+    UI --> R: Muestra "Complete los datos obligatorios"
+else Datos completos
+    CTRL -> DB: Guarda registro con fecha y hora
+    DB --> CTRL: Confirmación guardado
+    CTRL --> UI: Operación exitosa
+    UI --> R: Muestra "Registro guardado "
+end
+@enduml

@@ -1,0 +1,13 @@
+@startuml
+left to right direction
+actor "Recepcionista" as R
+rectangle "Sistema de Facturación" {
+  (Registrar Habitación y Fechas) as HU3
+  (Calcular días de hospedaje) as CAL
+  (Validar fechas y tarifa) as VAL
+}
+R --> HU3
+HU3 ..> VAL : <<incluye>>
+HU3 ..> CAL : <<incluye>>
+VAL ..> (Rechazar registro) : <<extiende>> Si fechas o tarifa inválidas
+@enduml

@@ -1,0 +1,16 @@
+@startuml
+class Documento {
+  - numero: String
+  - tipo: String
+  + esSoloNumeros(): boolean
+  + validarLongitud(): boolean
+  + validarCI(): boolean
+  + validarNIT(): boolean
+  + esValido(): boolean
+}
+Documento "1" -- "1" Validacion : comprueba
+class Validacion {
+  + mensajeError: String
+  + obtenerRegla(): String
+}
+@enduml

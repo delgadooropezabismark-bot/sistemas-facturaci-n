@@ -1,0 +1,10 @@
+@startuml
+[*] --> DatosSinIngresar
+DatosSinIngresar --> DatosIngresados : Escribe formulario
+DatosIngresados --> DatosValidados : Todos los datos obligatorios completos
+DatosIngresados --> DatosIncompletos : Faltan datos
+DatosIncompletos --> DatosIngresados : Completa campos
+DatosValidados --> GuardadoConfirmado : Confirma guardar
+GuardadoConfirmado --> [*]
+DatosIncompletos --> [*] : Cancela
+@enduml

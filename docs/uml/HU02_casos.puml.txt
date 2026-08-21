@@ -1,0 +1,12 @@
+@startuml
+left to right direction
+actor "Recepcionista" as R
+rectangle "Sistema de Facturación" {
+  (Validar CI / NIT) as HU2
+  (Verificar formato) as VER
+  (Mostrar error de formato) as ERR
+}
+R --> HU2
+HU2 ..> VER : <<incluye>>
+VER --> ERR : <<extiende>> Si formato incorrecto
+@enduml

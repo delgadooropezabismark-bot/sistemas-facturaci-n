@@ -1,0 +1,11 @@
+@startuml
+[*] --> SinDatos
+SinDatos --> FechasIngresadas : Completa formulario
+FechasIngresadas --> FechasValidas : salida > entrada AND tarifa > 0
+FechasIngresadas --> FechasInvalidas : fechas cruzadas o tarifa cero
+FechasInvalidas --> FechasIngresadas : Corrige datos
+FechasValidas --> CalculandoDias : sistema calcula
+CalculandoDias --> GuardadoConfirmado : días ≥ 1
+GuardadoConfirmado --> [*]
+FechasInvalidas --> [*] : Cancela
+@enduml

@@ -1,0 +1,15 @@
+@startuml
+actor Recepcionista as R
+participant "Interfaz" as UI
+participant "Validador" as VAL
+
+R -> UI: Escribe número de documento
+UI -> VAL: Envía documento para validar
+alt Formato incorrecto
+    VAL --> UI: "Número inválido. Solo 7-8 dígitos CI / 9-13 dígitos NIT"
+    UI --> R: Muestra mensaje de error
+else Formato correcto
+    VAL --> UI: ✅ Documento válido
+    UI --> R: Acepta documento y permite continuar
+end
+@enduml

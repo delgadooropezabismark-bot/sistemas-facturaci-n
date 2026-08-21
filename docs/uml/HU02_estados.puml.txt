@@ -1,0 +1,8 @@
+@startuml
+[*] --> SinValidar
+SinValidar --> FormatoCorrecto : Cumple longitud y solo números
+SinValidar --> FormatoIncorrecto : Tiene letras o longitud errónea
+FormatoIncorrecto --> SinValidar : Corrige número
+FormatoCorrecto --> [*] : ✅ Aceptado
+FormatoIncorrecto --> [*] : ❌ Rechazado
+@enduml

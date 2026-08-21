@@ -1,0 +1,17 @@
+@startuml
+class Hospedaje {
+  - numeroHabitacion: String
+  - fechaEntrada: Date
+  - fechaSalida: Date
+  - tarifaDiaria: decimal
+  - dias: int
+  + calcularDias(): int
+  + validarFechas(): boolean
+  + validarTarifa(): boolean
+  + guardar(): boolean
+}
+class Calculadora {
+  + calcular(entrada, salida): int
+}
+Hospedaje "1" -- "1" Calculadora : usa
+@enduml

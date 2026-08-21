@@ -1,0 +1,19 @@
+@startuml
+actor Recepcionista as R
+participant "Interfaz" as UI
+participant "Controlador" as CTRL
+database "Base de Datos" as DB
+
+R -> UI: Ingresa habitación, fechas y tarifa
+UI -> CTRL: Envía datos
+alt Fecha salida ≤ entrada O tarifa ≤ 0
+    CTRL --> UI: Mensaje "Verifique fechas y tarifa mayor a cero"
+    UI --> R: Muestra error, NO guarda
+else Datos correctos
+    CTRL -> CTRL: Calcula días = salida - entrada (mínimo 1)
+    CTRL -> DB: Guarda hospedaje con días calculados
+    DB --> CTRL: Confirmación
+    CTRL --> UI: ✅ Registro exitoso
+    UI --> R: Muestra días y monto parcial
+end
+@enduml

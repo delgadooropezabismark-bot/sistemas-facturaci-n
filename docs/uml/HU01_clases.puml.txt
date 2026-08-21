@@ -1,0 +1,18 @@
+@startuml
+class Huesped {
+  - id: int
+  - nombreCompleto: String
+  - documento: String
+  - razonSocial: String
+  - telefono: String
+  - direccion: String
+  - fechaRegistro: DateTime
+  + validarObligatorios(): boolean
+  + guardar(): boolean
+}
+class Validacion {
+  + esCompleto(huésped): boolean
+  + obtenerCamposFaltantes(): String
+}
+Huesped "1" -- "1" Validacion : usa
+@enduml
