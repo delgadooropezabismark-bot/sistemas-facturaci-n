@@ -1,6 +1,6 @@
 ---
 
-## 🏗️ Diseño Detallado — Diagramas UML (PlantUML)
+## Diseño Detallado — Diagramas UML (PlantUML)
 
 Los diagramas de Casos de Uso, Secuencia, Estados y Clases del Sprint 1 se encuentran en la carpeta **/docs/uml/**:
 
