@@ -10,6 +10,6 @@ Los diseños, diagramas de navegación y prototipos del sistema se encuentran en
 - 📋 [Listado de Facturas](docs/design/Listado.png)
 - 📊 [Reporte de Ingresos](docs/design/Reporte.png)
 
----
+
 
 
