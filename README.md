@@ -45,6 +45,6 @@ El modelo de datos cumple con la Tercera Forma Normal (3FN) y garantiza integrid
 
 ###  Archivos del modelo
 - 📐 [Diagrama de Base de Datos — Imagen](docs/database/modelo_relacional.png)
-- 📐 [Diagrama — Archivo Fuente](docs/database/modelo_relacional.dbml)
+- 📐 [Diagrama — Archivo Fuente](docs/database/modelo_relacional.dbml.txt)
 - 📝 [Esquema SQL de Creación](docs/database/esquema.sql)
 
