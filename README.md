@@ -36,4 +36,15 @@ Los diagramas de Casos de Uso, Secuencia, Estados y Clases del Sprint 1 se encue
 - 📐 [Diagrama de Clases](docs/uml/HU03_clases.png) · [Código](docs/uml/HU03_clases.puml.txt)
 
 
+##  Diseño de Arquitectura de Datos
+
+El modelo de datos cumple con la Tercera Forma Normal (3FN) y garantiza integridad referencial mediante claves primarias y foráneas.
+
+### Modelo Relacional
+![Modelo Relacional](docs/database/modelo_relacional.png)
+
+###  Archivos del modelo
+- 📐 [Diagrama de Base de Datos — Imagen](docs/database/modelo_relacional.png)
+- 📐 [Diagrama — Archivo Fuente](docs/database/modelo_relacional.drawio)
+- 📝 [Esquema SQL de Creación](docs/database/esquema.sql)
 
