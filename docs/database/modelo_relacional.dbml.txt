@@ -1,0 +1,45 @@
+Table huesped {
+  id_huesped int [pk, increment]
+  ci_nit varchar(15) [unique, not null]
+  tipo_documento varchar(4) [not null]
+  nombre_completo varchar(100) [not null]
+  razon_social varchar(100)
+  telefono varchar(20)
+  direccion varchar(200)
+  fecha_registro date [default: 'CURRENT_DATE']
+}
+
+Table habitacion {
+  id_habitacion int [pk, increment]
+  numero varchar(10) [unique, not null]
+  tipo varchar(30)
+  tarifa_base decimal(10,2) [not null]
+  estado varchar(15) [default: 'Disponible']
+}
+
+Table hospedaje {
+  id_hospedaje int [pk, increment]
+  id_huesped int [not null]
+  id_habitacion int [not null]
+  fecha_entrada date [not null]
+  fecha_salida date [not null]
+  tarifa_diaria_aplicada decimal(10,2) [not null]
+  dias int [not null]
+  subtotal decimal(12,2) [not null]
+  estado varchar(15) [default: 'Pendiente']
+}
+
+Table factura {
+  id_factura int [pk, increment]
+  id_hospedaje int [pk, unique, not null]
+  fecha_emision datetime [default: 'CURRENT_TIMESTAMP']
+  monto_total decimal(12,2) [not null]
+  nit_emisor varchar(15) [not null]
+  nombre_emisor varchar(100) [not null]
+  codigo_control varchar(50)
+  estado varchar(15) [default: 'Emitida']
+}
+
+Ref: hospedaje.id_huesped > huesped.id_huesped
+Ref: hospedaje.id_habitacion > habitacion.id_habitacion
+Ref: factura.id_hospedaje - hospedaje.id_hospedaje
