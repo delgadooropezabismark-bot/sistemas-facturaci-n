@@ -52,7 +52,6 @@ El modelo de datos cumple con la Tercera Forma Normal (3FN) y garantiza integrid
 
 Sistema digitalizado de gestión de hospedajes y facturación computarizada para establecimientos hoteleros, cumpliendo con la normativa fiscal de Bolivia (SIN), las historias de usuario del PRD (HU01, HU02, HU03) y refactorizado bajo principios **SOLID** y **Clean Architecture**.
 
----
 
 ## Principios SOLID Aplicados
 
