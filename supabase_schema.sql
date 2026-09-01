@@ -1,11 +1,9 @@
 -- ============================================================================
--- SISTEMA DE FACTURACIÓN HOTELERA (BOLIVIA) - ESQUEMA SUPABASE / POSTGRESQL
+-- SISTEMA DE FACTURACIÓN HOTELERA (BOLIVIA) - VERSIÓN LEGAL COMPLIANT
+-- Incluye: Ley 164, Habeas Data y Estándares de Facturación SIAT
 -- ============================================================================
 
--- 1. EXTENSIONES Y LIMPIEZA PREVIA (Opcional)
--- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
--- 2. TABLA: huésped
+-- 1. TABLA: huésped (Incluye campos de Habeas Data / Derecho al Olvido)
 CREATE TABLE IF NOT EXISTS huesped (
     id_huesped BIGSERIAL PRIMARY KEY,
     ci_nit VARCHAR(15) NOT NULL UNIQUE,
@@ -15,13 +13,25 @@ CREATE TABLE IF NOT EXISTS huesped (
     telefono VARCHAR(20),
     direccion VARCHAR(200),
     fecha_registro DATE NOT NULL DEFAULT CURRENT_DATE,
+    -- Campos de cumplimiento legal:
+    estado_habeas_data VARCHAR(20) DEFAULT 'Activo' CHECK (estado_habeas_data IN ('Activo', 'Anonimizado')),
+    fecha_solicitud_baja TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     
-    -- Restricciones de validación de reglas de negocio bolivianas
     CONSTRAINT chk_ci_formato CHECK (
-        (tipo_documento = 'CI' AND ci_nit ~ '^[0-9]{7,8}$') OR
+        (tipo_documento = 'CI' AND ci_nit ~ '^[0-9]{7,10}$') OR -- Ajustado a 10 por CIs nuevos
         (tipo_documento = 'NIT' AND ci_nit ~ '^[0-9]{9,13}$')
     )
+);
+
+-- 2. TABLA: consentimiento_datos (Habeas Data - Art. 130 CPE)
+CREATE TABLE IF NOT EXISTS consentimiento_datos (
+    id_consentimiento BIGSERIAL PRIMARY KEY,
+    id_huesped BIGINT NOT NULL REFERENCES huesped(id_huesped) ON DELETE CASCADE,
+    fecha_aceptacion TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    version_politica VARCHAR(10) DEFAULT 'v1.0',
+    canal VARCHAR(20) DEFAULT 'Recepción', 
+    autoriza_tratamiento_datos BOOLEAN DEFAULT TRUE
 );
 
 -- 3. TABLA: habitación
@@ -47,14 +57,12 @@ CREATE TABLE IF NOT EXISTS hospedaje (
     dias INT NOT NULL CHECK (dias >= 1),
     subtotal DECIMAL(12,2) NOT NULL CHECK (subtotal >= 0),
     estado VARCHAR(15) NOT NULL DEFAULT 'Pendiente' CHECK (estado IN ('Pendiente', 'Finalizado')),
-    observaciones TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
 
-    -- Restricción de orden cronológico
     CONSTRAINT chk_fechas_hospedaje CHECK (fecha_salida >= fecha_entrada)
 );
 
--- 5. TABLA: factura
+-- 5. TABLA: factura (Incluye campos SIAT - Impuestos Nacionales)
 CREATE TABLE IF NOT EXISTS factura (
     id_factura BIGSERIAL PRIMARY KEY,
     id_hospedaje BIGINT NOT NULL UNIQUE REFERENCES hospedaje(id_hospedaje) ON DELETE RESTRICT,
@@ -63,50 +71,77 @@ CREATE TABLE IF NOT EXISTS factura (
     monto_total DECIMAL(12,2) NOT NULL CHECK (monto_total >= 0),
     nit_emisor VARCHAR(15) NOT NULL,
     nombre_emisor VARCHAR(100) NOT NULL,
-    codigo_control VARCHAR(50),
-    autorizacion_nro VARCHAR(50) DEFAULT '45910290001824',
+    -- Campos requeridos por normativa boliviana (SIAT):
+    cuf VARCHAR(100), -- Código Único de Factura
+    cufd VARCHAR(100), -- Código Único de Facturación Diaria
+    codigo_control VARCHAR(50), -- Solo para facturación computarizada antigua
+    leyenda_ley_453 TEXT, -- Mensaje obligatorio de defensa al consumidor
     estado VARCHAR(15) NOT NULL DEFAULT 'Emitida' CHECK (estado IN ('Emitida', 'Anulada')),
     motivo_anulacion TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 6. ÍNDICES DE RENDIMIENTO
-CREATE INDEX IF NOT EXISTS idx_huesped_ci_nit ON huesped(ci_nit);
-CREATE INDEX IF NOT EXISTS idx_habitacion_estado ON habitacion(estado);
-CREATE INDEX IF NOT EXISTS idx_hospedaje_estado ON hospedaje(estado);
-CREATE INDEX IF NOT EXISTS idx_factura_fecha ON factura(fecha_emision);
+-- 6. TABLA: logs_auditoria (Ley 164 - Integridad y No Repudio)
+CREATE TABLE IF NOT EXISTS logs_auditoria (
+    id_log BIGSERIAL PRIMARY KEY,
+    tabla_afectada VARCHAR(50) NOT NULL,
+    id_registro_afectado BIGINT NOT NULL,
+    operacion VARCHAR(10) NOT NULL, -- INSERT, UPDATE, DELETE
+    valor_anterior JSONB,
+    valor_nuevo JSONB,
+    usuario_id UUID, -- Se vincula con auth.users de Supabase
+    fecha_evento TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
--- 7. TRIGGER PARA ACTUALIZAR ESTADO DE HABITACIÓN A OCUPADA / DISPONIBLE
+-- 7. ÍNDICES
+CREATE INDEX idx_huesped_ci_nit ON huesped(ci_nit);
+CREATE INDEX idx_factura_cuf ON factura(cuf);
+
+-- 8. TRIGGERS Y FUNCIONES
+
+-- A. Actualizar estado de habitación
 CREATE OR REPLACE FUNCTION trg_actualizar_estado_habitacion()
 RETURNS TRIGGER AS $$
 BEGIN
     IF (TG_OP = 'INSERT' AND NEW.estado = 'Pendiente') THEN
         UPDATE habitacion SET estado = 'Ocupada' WHERE id_habitacion = NEW.id_habitacion;
-    ELSIF (TG_OP = 'UPDATE' AND NEW.estado = 'Finalizado' AND OLD.estado = 'Pendiente') THEN
+    ELSIF (TG_OP = 'UPDATE' AND NEW.estado = 'Finalizado') THEN
         UPDATE habitacion SET estado = 'Disponible' WHERE id_habitacion = NEW.id_habitacion;
     END IF;
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trigger_hospedaje_habitacion_estado ON hospedaje;
 CREATE TRIGGER trigger_hospedaje_habitacion_estado
 AFTER INSERT OR UPDATE ON hospedaje
-FOR EACH ROW
-EXECUTE FUNCTION trg_actualizar_estado_habitacion();
+FOR EACH ROW EXECUTE FUNCTION trg_actualizar_estado_habitacion();
 
--- 8. DATOS SEMILLA (Seed Data)
-INSERT INTO habitacion (numero, tipo, tarifa_base, estado, capacidad, piso) VALUES
-('101', 'Simple Estándar', 180.00, 'Disponible', 1, 1),
-('102', 'Doble Twin', 260.00, 'Disponible', 2, 1),
-('103', 'Matrimonial King', 320.00, 'Disponible', 2, 1),
-('201', 'Suite Ejecutiva', 450.00, 'Disponible', 2, 2),
-('202', 'Suite Familiar', 580.00, 'Disponible', 4, 2),
-('203', 'Simple Vista Jardín', 210.00, 'Disponible', 1, 2)
-ON CONFLICT (numero) DO NOTHING;
+-- B. Auditoría de Facturas (Ley 164)
+CREATE OR REPLACE FUNCTION trg_auditar_factura()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF (TG_OP = 'UPDATE') THEN
+        INSERT INTO logs_auditoria(tabla_afectada, id_registro_afectado, operacion, valor_anterior, valor_nuevo)
+        VALUES ('factura', OLD.id_factura, 'UPDATE', to_jsonb(OLD), to_jsonb(NEW));
+    ELSIF (TG_OP = 'DELETE') THEN
+        INSERT INTO logs_auditoria(tabla_afectada, id_registro_afectado, operacion, valor_anterior)
+        VALUES ('factura', OLD.id_factura, 'DELETE', to_jsonb(OLD));
+    END IF;
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
 
-INSERT INTO huesped (ci_nit, tipo_documento, nombre_completo, razon_social, telefono, direccion) VALUES
-('7382910', 'CI', 'Carlos Eduardo Mendoza Paz', NULL, '77123456', 'Av. Busch #120, La Paz'),
-('10293847012', 'NIT', 'Valeria Ramos Gutiérrez', 'CONSTRUCTORA ANDINA S.R.L.', '76543210', 'Calle Calacoto #15, La Paz'),
-('6829401', 'CI', 'Fernando Justiniano Suárez', NULL, '68901234', 'Av. San Martín #400, Santa Cruz')
-ON CONFLICT (ci_nit) DO NOTHING;
+CREATE TRIGGER trigger_auditoria_factura
+AFTER UPDATE OR DELETE ON factura
+FOR EACH ROW EXECUTE FUNCTION trg_auditar_factura();
+
+-- 9. VISTA PARA DERECHO DE ACCESO (Habeas Data)
+CREATE OR REPLACE VIEW vista_derecho_acceso AS
+SELECT 
+    h.id_huesped, h.nombre_completo, h.ci_nit, h.estado_habeas_data,
+    f.id_factura, f.monto_total, f.fecha_emision,
+    c.fecha_aceptacion AS fecha_consentimiento
+FROM huesped h
+LEFT JOIN hospedaje hos ON h.id_huesped = hos.id_huesped
+LEFT JOIN factura f ON hos.id_hospedaje = f.id_hospedaje
+LEFT JOIN consentimiento_datos c ON h.id_huesped = c.id_huesped;
