@@ -88,3 +88,38 @@ Criterios de Aceptación:
 Al cambiar las fechas, el campo "Días" debe actualizarse automáticamente.
 El subtotal debe refrescarse inmediatamente si cambian los días o la tarifa.
 El cálculo debe ser visible para el recepcionista antes de confirmar el registro.
+
+
+## 7. Marco Legal y Ética de Datos
+
+El presente sistema se diseña y opera en estricto cumplimiento del marco normativo vigente en el Estado Plurinacional de Bolivia:
+
+### Habeas Data (Constitución Política del Estado — Art. 130)
+El usuario titular de los datos personales tiene garantizado el **derecho de acceso, rectificación, actualización y eliminación** de su información personal almacenada en el sistema:
+
+-  **Acceso:** El huésped puede solicitar copia de todos sus datos registrados (nombre, CI/NIT, teléfono, direcciones, historial de estancias y facturas emitidas a su nombre).
+-  **Rectificación y Actualización:** El usuario puede solicitar corrección de datos incorrectos, desactualizados o incompletos.
+-  **Eliminación:** El usuario puede solicitar la eliminación de sus datos personales, salvo aquella información que por disposición legal deba conservarse por plazos fiscales o tributarios.
+-  **Mecanismo:** Las solicitudes se atienden mediante solicitud escrita al administrador del sistema, sin formalidades excesivas y sin costo para el titular.
+
+###  Ley N° 164 de Telecomunicaciones, Tecnologías de Información y Comunicación
+El sistema adopta los principios y estándares de la Ley 164:
+
+-  **Neutralidad Tecnológica:** No se impone tecnología propietaria exclusiva; el sistema se basa en estándares abiertos (HTML, JavaScript, SQL).
+-  **Seguridad de la Información:** Se protegen los datos personales y financieros mediante protocolos de cifrado en tránsito (HTTPS/TLS).
+-  **Autenticidad e Integridad:** Se prevé la implementación de firma digital certificada conforme a normativa boliviana para la emisión y almacenamiento de facturas electrónicas.
+-  **Interoperabilidad:** La factura se genera en formato estructurado que facilita su integración con sistemas fiscales oficiales.
+
+###  Seguridad y Normativa ASFI (Principios Aplicables)
+Aunque el sistema no es regulado directamente por ASFI, se aplican sus mejores prácticas de protección de datos financieros:
+
+-  **Confidencialidad:** Datos sensibles (CI/NIT, montos, números de habitación) se protegen con control de acceso por roles.
+-  **Encriptación:** Los campos sensibles se almacenan mediante técnicas de cifrado. Las contraseñas NUNCA se guardan en texto plano, se almacenan como valor hash irreversible.
+-  **Registro de Eventos (Logs):** Se implementa una tabla de `logs_auditoría` que registra **quién accede, a qué datos, cuándo y qué operación realizó**, quedando dicho registro inalterable.
+-  **Control de Accesos:** Solo usuarios autenticados pueden operar en el sistema. Cada factura queda identificada con el usuario que la emitió.
+-  **Conservación:** Los registros de facturación y auditoría se conservan por el plazo legal establecido (5 años para efectos tributarios).
+
+### Código Penal — Artículo 363 ter (Protección de Datos)
+-  Se previene el **acceso indebido** ajenos al sistema mediante autenticación obligatoria.
+-  Se protegen los datos contra alteración, destrucción o divulgación no autorizada.
+-  Se establece que toda persona que acceda, intercepte, altere o divulgue datos sin autorización legítima se expone a responsabilidad penal conforme al Art. 363 ter del Código Penal Boliviano.
